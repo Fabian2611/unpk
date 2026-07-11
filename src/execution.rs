@@ -1,4 +1,4 @@
-use log::error;
+use crate::error;
 use std::fs::{self, File};
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
@@ -136,7 +136,12 @@ fn extract_stripped(dest: &Path, run_extract: impl FnOnce(&Path)) {
         });
         let target = dest.join(entry.file_name());
         fs::rename(entry.path(), &target).unwrap_or_else(|e| {
-            error!("failed to move {} to {}: {}", entry.path().display(), target.display(), e);
+            error!(
+                "failed to move {} to {}: {}",
+                entry.path().display(),
+                target.display(),
+                e
+            );
             std::process::exit(1);
         });
     }
@@ -177,7 +182,10 @@ impl Extractor for ZipBackend {
                 run("unzip", &["-q", &archive_str, "-d", &tmp.to_string_lossy()]);
             });
         } else {
-            run("unzip", &["-q", &archive_str, "-d", &dest.to_string_lossy()]);
+            run(
+                "unzip",
+                &["-q", &archive_str, "-d", &dest.to_string_lossy()],
+            );
         }
     }
 }
@@ -193,10 +201,8 @@ impl Extractor for SevenZipBackend {
                 past_separator = true;
                 continue;
             }
-            if past_separator {
-                if let Some(rest) = line.strip_prefix("Path = ") {
-                    entries.push(rest.to_string());
-                }
+            if past_separator && let Some(rest) = line.strip_prefix("Path = ") {
+                entries.push(rest.to_string());
             }
         }
         entries

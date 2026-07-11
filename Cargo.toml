@@ -1,11 +1,10 @@
 [package]
 name = "unpk"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "A simple CLI tool to unpack any archive, with consistent flattening."
 license = "AGPL-3.0"
 repository = "https://github.com/Fabian2611/unpk"
 
 [dependencies]
-log = "0.4.33"
-colog = "1.4.0"
+

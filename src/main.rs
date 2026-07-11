@@ -1,6 +1,6 @@
 pub mod execution;
+pub mod logging;
 
-use log::{error, warn};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -76,14 +76,12 @@ fn err_usage() -> ! {
 }
 
 fn main() {
-    colog::init();
     let mut args = std::env::args().skip(1).peekable();
     let mut input: Option<PathBuf> = None;
     let mut output: Option<PathBuf> = None;
     let mut here = false;
     let mut dry = false;
     let mut list = false;
-    let spex: SpecialExecutionFlag;
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -123,7 +121,7 @@ fn main() {
         err_usage();
     }
 
-    spex = if dry {
+    let spex = if dry {
         if list {
             error!("cannot both --list and --dry-run");
             err_usage();
@@ -199,7 +197,7 @@ fn resolve_dest(root: &Option<String>, input: &Path, output: Option<PathBuf>, he
     parent.join(name)
 }
 
-fn execute(file: &PathBuf, output: Option<PathBuf>, here: bool, spex: SpecialExecutionFlag) {
+fn execute(file: &Path, output: Option<PathBuf>, here: bool, spex: SpecialExecutionFlag) {
     let fmt = execution::detect_format(file);
     let backend = execution::backend_for(&fmt);
     let entries = backend.list(file);
